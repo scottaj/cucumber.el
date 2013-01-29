@@ -1,7 +1,3 @@
-require 'rubygems'
-gem "ruby_parser", "~> 2.0"
-require 'ruby_parser'
-
 class Step
   attr_reader :file, :line, :regexp
   def initialize(regexp, file, line)
@@ -31,45 +27,33 @@ class Step
   end
 end
 
+
 class StepParser
-  def self.parser
-    @parser ||= RubyParser.new
-  end
+  STEP_REGEXP = /^(Given|When|Then|And)\s*\/(.*)\/.*$/
 
-  attr_accessor :steps, :file
+  def self.parse(file)
+    steps_file = File.new(file).readlines
+    steps = []
 
-  def initialize(file)
-    @file = file
-    @steps = []
-    extract_steps(self.class.parser.parse(File.read(file)))
-  end
-
-  def extract_steps(sexp)
-    return unless sexp.is_a?(Sexp)
-    case sexp.first
-    when :block
-      sexp[1..-1].each do |child_sexp|
-        extract_steps(child_sexp)
-      end
-    when :iter
-      child_sexp = sexp[1]
-      return unless child_sexp[0] == :call && [:When, :Then, :Given, :And].include?(child_sexp[2])
-      regexp = child_sexp[3][1] && child_sexp[3][1][1]
-      @steps << Step.new(regexp, file, child_sexp.line)
-    else
-      sexp.each do |child_sexp|
-        extract_steps(child_sexp)
+    steps_file.each_with_index do |line, i|
+      step_definition = line.match(STEP_REGEXP)
+      if step_definition
+        regexp = Regexp.new(step_definition[2], true)
+        steps << Step.new(regexp, file, i+1)
       end
     end
+
+    return steps
   end
 end
 
-input_text = ARGV[0].strip.gsub(/(When|Then|Given|And) */, "")
+
+input_text = ARGV[0].strip.gsub(/(When|Then|Given|And)\s*/, "")
 
 files = Dir["features/**/*steps.rb"]
 steps = []
 files.each do |file|
-  steps.concat(StepParser.new(file).steps)
+  steps.concat(StepParser.parse(file))
 end
 
 steps.each do |step|
