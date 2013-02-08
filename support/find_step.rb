@@ -29,7 +29,7 @@ end
 
 
 class StepParser
-  STEP_REGEXP = /^(Given|When|Then|And)\s*\/(.*)\/.*$/
+  STEP_REGEXP = /^(Given|When|Then|And)\s*(?:\/|(?:%r[\[\(\{]))(.*)(?:\/|[\]\)\}]).*$/
 
   def self.parse(file)
     steps_file = File.new(file).readlines
