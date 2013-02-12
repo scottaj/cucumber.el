@@ -438,9 +438,9 @@ are loaded on startup.  If nil, don't load snippets.")
                          feature-file
                        feature-default-directory)))
     (ansi-color-for-comint-mode-on)
+    (if feature-use-rvm
+        (rvm-activate-corresponding-ruby))
     (let ((default-directory (feature-project-root)))
-      (if feature-use-rvm
-          (rvm-activate-corresponding-ruby))
       (compile (concat (replace-regexp-in-string "\{options\}" opts-str
                         (replace-regexp-in-string "\{feature\}" feature-arg feature-cucumber-command))) t)))
   (end-of-buffer-other-window 0))
