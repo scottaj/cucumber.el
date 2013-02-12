@@ -442,7 +442,7 @@ are loaded on startup.  If nil, don't load snippets.")
         (rvm-activate-corresponding-ruby))
     (let ((default-directory (feature-project-root)))
       (compile (concat (replace-regexp-in-string "\{options\}" opts-str
-                        (replace-regexp-in-string "\{feature\}" feature-arg feature-cucumber-command))) t)))
+                        (replace-regexp-in-string "\{feature\}" feature-arg feature-cucumber-command))) nil)))
   (end-of-buffer-other-window 0))
 
 (defun feature-escape-scenario-name (scenario-name)
